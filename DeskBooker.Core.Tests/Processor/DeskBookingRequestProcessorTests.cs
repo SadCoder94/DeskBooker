@@ -2,6 +2,7 @@
 using DeskBooker.Core.Domain;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Xunit;
 
@@ -12,11 +13,13 @@ namespace DeskBooker.Core.Processor
         private readonly Mock<IDeskBookingRepository> _deskBookingRepositoryMock;
         private readonly DeskBookingRequestProcessor _processor;
         private readonly DeskBookingRequest _request;
+        private readonly List<Desk> _availableDesks;
+        private readonly Mock<IDeskRepository> _deskRepositoryMock;
 
         public DeskBookingRequestProcessorTests()
         {
             _deskBookingRepositoryMock = new Mock<IDeskBookingRepository>();
-            _processor = new DeskBookingRequestProcessor(_deskBookingRepositoryMock.Object);
+            
             _request = new DeskBookingRequest
             {
                 FirstName = "Thomas",
@@ -24,6 +27,14 @@ namespace DeskBooker.Core.Processor
                 Email = "thomas.huber@emai.com",
                 Date = new DateTime(2020, 1, 28)
             };
+
+            _availableDesks = new List<Desk> { new Desk()};//booking should be possible with one desk available 
+            _deskRepositoryMock = new Mock<IDeskRepository>();
+            _deskRepositoryMock.Setup(x => x.GetAvailableDesks(_request.Date))
+                .Returns(_availableDesks);
+
+            _processor = new DeskBookingRequestProcessor(
+                _deskBookingRepositoryMock.Object, _deskRepositoryMock.Object);
             //common code moved to constructor
         }
         [Fact]
@@ -64,6 +75,18 @@ namespace DeskBooker.Core.Processor
             _deskBookingRepositoryMock.Verify(x => x.Save(It.IsAny<DeskBooking>()), Times.Once);//asserts if Save was called only once
             Assert.NotNull(savedDeskBooking);
             Assert.Equal(_request.FirstName, savedDeskBooking.FirstName);
+        }
+
+        [Fact]
+        public void ShouldNotSaveDeskBookingIfDeskIsNotAvailable()
+        {
+            //Ensure no desk is available
+            _availableDesks.Clear();//clears available desks, no desks available
+
+            _processor.BookDesk(_request);//after booking the Save should not be called as no desks are available
+
+            _deskBookingRepositoryMock.Verify(x => x.Save(It.IsAny<DeskBooking>()), Times.Never);//asserts if Save was never called once 
+
         }
     }
 }
