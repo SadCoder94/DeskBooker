@@ -90,5 +90,21 @@ namespace DeskBooker.Core.Processor
             _deskBookingRepositoryMock.Verify(x => x.Save(It.IsAny<DeskBooking>()), Times.Never);//asserts if Save was never called once 
 
         }
+
+        [Theory]//Data driven test uses theory att
+        [InlineData(DeskBookingResultCode.Success, true)]//when desk available
+        [InlineData(DeskBookingResultCode.NoDeskAvailable, false)]//when desk is not available
+        public void ShouldReturnExpectedResultCode(
+            DeskBookingResultCode expectedResultCode, bool isDeskAvailable)
+        {
+            if (!isDeskAvailable)
+            {
+                _availableDesks.Clear();
+            }
+
+            var result = _processor.BookDesk(_request);
+
+            Assert.Equal(expectedResultCode, result.Code);
+        }
     }
 }
