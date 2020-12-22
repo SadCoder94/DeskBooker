@@ -24,9 +24,11 @@ namespace DeskBooker.Core.Processor
             }
 
             var availableDesks = _deskRepository.GetAvailableDesks(request.Date);
-            if (availableDesks.Count() > 0)
+            if (availableDesks.FirstOrDefault() is Desk availableDesk)//refactor
             {
-                _deskBookingRepository.Save(Create<DeskBooking>(request));
+                var deskBooking = Create<DeskBooking>(request);
+                deskBooking.DeskId = availableDesk.Id;
+                _deskBookingRepository.Save(deskBooking);
             }
 
             return Create<DeskBookingResult>(request);
