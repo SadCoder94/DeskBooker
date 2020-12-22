@@ -4,6 +4,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Xunit;
 
 namespace DeskBooker.Core.Processor
@@ -28,7 +29,7 @@ namespace DeskBooker.Core.Processor
                 Date = new DateTime(2020, 1, 28)
             };
 
-            _availableDesks = new List<Desk> { new Desk()};//booking should be possible with one desk available 
+            _availableDesks = new List<Desk> { new Desk { Id = 7 } };//booking should be possible with one desk available 
             _deskRepositoryMock = new Mock<IDeskRepository>();
             _deskRepositoryMock.Setup(x => x.GetAvailableDesks(_request.Date))
                 .Returns(_availableDesks);
@@ -75,6 +76,7 @@ namespace DeskBooker.Core.Processor
             _deskBookingRepositoryMock.Verify(x => x.Save(It.IsAny<DeskBooking>()), Times.Once);//asserts if Save was called only once
             Assert.NotNull(savedDeskBooking);
             Assert.Equal(_request.FirstName, savedDeskBooking.FirstName);
+            Assert.Equal(_availableDesks.First().Id, savedDeskBooking.DeskId);
         }
 
         [Fact]
