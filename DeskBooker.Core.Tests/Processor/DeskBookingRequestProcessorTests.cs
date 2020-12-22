@@ -3,7 +3,6 @@ using DeskBooker.Core.Domain;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Xunit;
 
@@ -38,6 +37,7 @@ namespace DeskBooker.Core.Processor
                 _deskBookingRepositoryMock.Object, _deskRepositoryMock.Object);
             //common code moved to constructor
         }
+
         [Fact]
         public void ShouldReturnDeskBookingResultWithRequestValue()
         {
@@ -105,6 +105,30 @@ namespace DeskBooker.Core.Processor
             var result = _processor.BookDesk(_request);
 
             Assert.Equal(expectedResultCode, result.Code);
+        }
+
+        [Theory]//Data driven test uses theory att
+        [InlineData(3, true)]//when desk available
+        [InlineData(null, false)]//when desk is not available, deskid is null
+        public void ShouldReturnExpectedDeskBookingId(
+            int? expectedDeskBookingId, bool isDeskAvailable)
+        {
+            if (!isDeskAvailable)
+            {
+                _availableDesks.Clear();
+            }
+            else
+            {
+                _deskBookingRepositoryMock.Setup(x => x.Save(It.IsAny<DeskBooking>()))
+                    .Callback<DeskBooking>(deskBooking =>
+                    {
+                        deskBooking.Id = expectedDeskBookingId.Value;
+                    });
+            }
+
+            var result = _processor.BookDesk(_request);
+
+            Assert.Equal(expectedDeskBookingId, result.DeskBookingId);
         }
     }
 }
