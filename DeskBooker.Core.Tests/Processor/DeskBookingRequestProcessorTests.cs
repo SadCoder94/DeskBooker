@@ -67,7 +67,7 @@ namespace DeskBooker.Core.Processor
         public void ShouldSaveDeskBooking()
         {
             DeskBooking savedDeskBooking = null;
-            _deskBookingRepositoryMock.Setup(x => x.Save(It.IsAny<DeskBooking>()))//as long as Save is called with type DeskBooking use callback
+            _deskBookingRepositoryMock.Setup(x => x.Save(It.IsAny<DeskBooking>()))//as long as Save is called with type DeskBooking use callback value
                 .Callback<DeskBooking>(deskbooking => {
                     savedDeskBooking = deskbooking;//saves the arguments that the Save was called with locally for testing.
                 });
@@ -109,7 +109,7 @@ namespace DeskBooker.Core.Processor
 
         [Theory]//Data driven test uses theory att
         [InlineData(3, true)]//when desk available
-        [InlineData(null, false)]//when desk is not available, deskid is null
+        //[InlineData(null, false)]//when desk is not available, deskid is null
         public void ShouldReturnExpectedDeskBookingId(
             int? expectedDeskBookingId, bool isDeskAvailable)
         {
