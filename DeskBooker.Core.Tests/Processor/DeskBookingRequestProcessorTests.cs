@@ -3,6 +3,7 @@ using DeskBooker.Core.Domain;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using Xunit;
 
@@ -42,8 +43,8 @@ namespace DeskBooker.Core.Processor
         public void ShouldReturnDeskBookingResultWithRequestValue()
         {
             //arrange
-            
-            
+            var st = ConfigurationManager.AppSettings["test"];
+
             //act
             DeskBookingResult result = _processor.BookDesk(_request);
 

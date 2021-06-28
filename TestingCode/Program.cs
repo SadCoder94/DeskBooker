@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 
 namespace TestingCode
 {
@@ -6,7 +7,8 @@ namespace TestingCode
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var st = ConfigurationManager.AppSettings["test"]; 
+            Console.WriteLine(st);
         }
     }
 }
